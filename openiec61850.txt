@@ -1,0 +1,13 @@
+The test server is located in projects/sample/sampleServer
+
+The server can be started from the command line by running
+
+$ sudo ./runSampleServer.sh  SWDeviceGenericI.icd 102
+
+The server prints "Server started on port 102 for file SWDeviceGenericI.icd" when it's ready
+
+open a new tab and cd to run-scripts. Run (as the regular user)
+
+./openiec61850-clientgui.sh
+
+select port 102 and click on "Connect to server"
