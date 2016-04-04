@@ -15,6 +15,7 @@ import org.openmuc.openiec61850.BdaBoolean;
 import org.openmuc.openiec61850.BdaInt16;
 import org.openmuc.openiec61850.BdaInt32;
 import org.openmuc.openiec61850.BdaInt8;
+import org.openmuc.openiec61850.BdaInt8U;
 import org.openmuc.openiec61850.BdaVisibleString;
 import org.openmuc.openiec61850.ClientAssociation;
 import org.openmuc.openiec61850.Fc;
@@ -31,6 +32,7 @@ import com.alliander.osgp.adapter.protocol.iec61850.device.DeviceMessageStatus;
 import com.alliander.osgp.adapter.protocol.iec61850.device.DeviceRequest;
 import com.alliander.osgp.adapter.protocol.iec61850.device.DeviceResponseHandler;
 import com.alliander.osgp.adapter.protocol.iec61850.device.requests.SetConfigurationDeviceRequest;
+import com.alliander.osgp.adapter.protocol.iec61850.device.requests.SetEventNotificationsDeviceRequest;
 import com.alliander.osgp.adapter.protocol.iec61850.device.requests.SetLightDeviceRequest;
 import com.alliander.osgp.adapter.protocol.iec61850.device.responses.EmptyDeviceResponse;
 import com.alliander.osgp.adapter.protocol.iec61850.device.responses.GetConfigurationDeviceResponse;
@@ -47,6 +49,7 @@ import com.alliander.osgp.core.db.api.iec61850valueobjects.RelayType;
 import com.alliander.osgp.dto.valueobjects.Configuration;
 import com.alliander.osgp.dto.valueobjects.DaliConfiguration;
 import com.alliander.osgp.dto.valueobjects.DeviceStatus;
+import com.alliander.osgp.dto.valueobjects.EventNotificationType;
 import com.alliander.osgp.dto.valueobjects.LightType;
 import com.alliander.osgp.dto.valueobjects.LightValue;
 import com.alliander.osgp.dto.valueobjects.LinkType;
@@ -380,6 +383,55 @@ public class Iec61850DeviceService implements DeviceService {
 
         deviceResponseHandler.handleResponse(deviceResponse);
 
+    }
+
+    /**
+     * @see DeviceService#setLight(SetLightDeviceRequest)
+     */
+    @Override
+    public void setEventNotifications(final DeviceRequest deviceRequest,
+            final DeviceResponseHandler deviceResponseHandler) {
+
+        try {
+
+            // Connect, get the ServerModel final and ClientAssociation.
+            this.iec61850DeviceConnectionService.connect(deviceRequest.getIpAddress(),
+                    deviceRequest.getDeviceIdentification());
+
+            final ServerModel serverModel = this.iec61850DeviceConnectionService.getServerModel(deviceRequest
+                    .getDeviceIdentification());
+            final ClientAssociation clientAssociation = this.iec61850DeviceConnectionService
+                    .getClientAssociation(deviceRequest.getDeviceIdentification());
+
+            this.setEventNotificationOnDevice(serverModel, clientAssociation,
+                    ((SetEventNotificationsDeviceRequest) deviceRequest).getEventNotificationsContainer()
+                            .getEventNotifications());
+
+        } catch (final ConnectionFailureException se) {
+            LOGGER.error("Could not connect to device after all retries", se);
+
+            final EmptyDeviceResponse deviceResponse = new EmptyDeviceResponse(
+                    deviceRequest.getOrganisationIdentification(), deviceRequest.getDeviceIdentification(),
+                    deviceRequest.getCorrelationUid(), DeviceMessageStatus.FAILURE);
+
+            deviceResponseHandler.handleException(se, deviceResponse, true);
+            return;
+        } catch (final Exception e) {
+            LOGGER.error("Unexpected exception during writeDataValue", e);
+
+            final EmptyDeviceResponse deviceResponse = new EmptyDeviceResponse(
+                    deviceRequest.getOrganisationIdentification(), deviceRequest.getDeviceIdentification(),
+                    deviceRequest.getCorrelationUid(), DeviceMessageStatus.FAILURE);
+
+            deviceResponseHandler.handleException(e, deviceResponse, false);
+            return;
+        }
+
+        final EmptyDeviceResponse deviceResponse = new EmptyDeviceResponse(
+                deviceRequest.getOrganisationIdentification(), deviceRequest.getDeviceIdentification(),
+                deviceRequest.getCorrelationUid(), DeviceMessageStatus.OK);
+
+        deviceResponseHandler.handleResponse(deviceResponse);
     }
 
     // =================
@@ -829,6 +881,46 @@ public class Iec61850DeviceService implements DeviceService {
 
     }
 
+    private void setEventNotificationOnDevice(final ServerModel serverModel, final ClientAssociation clientAssociation,
+            final List<EventNotificationType> eventNotifications) throws ProtocolAdapterException {
+
+        // creating the Function that will be retried, if necessary
+        final Function<Void> function = new Function<Void>() {
+
+            @Override
+            public Void apply() throws Exception {
+
+                // Create the object reference string
+                final String eventReportingObjectReference = LogicalNodeAttributeDefinitons.LOGICAL_DEVICE
+                        + LogicalNodeAttributeDefinitons.PROPERTY_NODE_CSLC
+                        + LogicalNodeAttributeDefinitons.PROPERTY_EVENT_REPORTING;
+                LOGGER.info("regObjectReference: {}", eventReportingObjectReference);
+
+                // Get the node using configuration functional constraint.
+                final FcModelNode cslcLogicalNodeRegAttribute = Iec61850DeviceService.this.getNode(serverModel,
+                        eventReportingObjectReference, Fc.ST);
+
+                // Get a data attribute using configuration functional
+                // constraint.
+                final BdaInt8U eventTypes = (BdaInt8U) Iec61850DeviceService.this.getChildOfNodeWithConstraint(
+                        cslcLogicalNodeRegAttribute,
+                        LogicalNodeAttributeDefinitons.PROPERTY_EVENT_REPORTING_ATTRIBUTE_EVENT_TYPE, Fc.ST);
+
+                // LOGGER.info("Updating OspgIpAddress to {}",
+                // configuration.getOspgIpAddress());
+                //
+                // // Get the value and send the value to the device.
+                // serverAddress.setValue(configuration.getOspgIpAddress());
+                // clientAssociation.setDataValues(serverAddress);
+
+                return null;
+            }
+        };
+
+        this.iec61850Client.sendCommandWithRetry(function);
+
+    }
+
     // This code will be used in the future
     private void checkRelayTypes(final DeviceOutputSetting deviceOutputSetting, final ServerModel serverModel)
             throws InvalidConfigurationException {
@@ -859,7 +951,7 @@ public class Iec61850DeviceService implements DeviceService {
     private FcModelNode getNode(final ServerModel serverModel, final String objectReference,
             final Fc functionalConstraint) {
 
-        final FcModelNode output = (FcModelNode) serverModel.findModelNode(objectReference, Fc.CF);
+        final FcModelNode output = (FcModelNode) serverModel.findModelNode(objectReference, functionalConstraint);
         if (output == null) {
             LOGGER.info("{} is null", objectReference);
             // TODO exceptionHandling

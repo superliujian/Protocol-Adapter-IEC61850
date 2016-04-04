@@ -31,9 +31,7 @@ public interface DeviceService {
 
     void setConfiguration(SetConfigurationDeviceRequest deviceRequest, DeviceResponseHandler deviceResponseHandler);
 
-    // void setEventNotifications(DeviceRequest deviceRequest,
-    // DeviceResponseHandler deviceResponseHandler,
-    // String ipAddress);
+    void setEventNotifications(DeviceRequest deviceRequest, DeviceResponseHandler deviceResponseHandler);
 
     /**
      * Runs a selftest. StartOfTest is a boolean, used to indicate whether the

@@ -61,6 +61,16 @@ public final class LogicalNodeAttributeDefinitons {
      */
     public static final String PROPERTY_REG_ATTRIBUTE_SERVER_PORT = "svrPort";
 
+    /**
+     * Property of CSLC Node, event reporting.
+     */
+    public static final String PROPERTY_EVENT_REPORTING = ".EvnRpn";
+
+    /**
+     * Attribute of Property EnvRpn, used to read or set the list of events
+     */
+    public static final String PROPERTY_EVENT_REPORTING_ATTRIBUTE_EVENT_TYPE = "evnType";
+
     // SWCf
 
     /**
