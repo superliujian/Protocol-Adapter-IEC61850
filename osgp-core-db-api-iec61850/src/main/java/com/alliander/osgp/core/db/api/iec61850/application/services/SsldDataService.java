@@ -31,7 +31,7 @@ public class SsldDataService {
     }
 
     /**
-     * Returns the internal index, corresponding to the given external index.
+     * Returns the external index, corresponding to the given internal index.
      *
      * Throws an exception if the index is not found.
      */
@@ -46,20 +46,21 @@ public class SsldDataService {
         }
 
         if (output == 0) {
-            throw new IllegalArgumentException("Unknown internal id");
+            throw new IllegalArgumentException("Unknown external id");
         }
 
         return output;
     }
 
     /**
-     * Returns the external index, corresponding to the given internal index.
+     * Returns the internal index, corresponding to the given external index.
      *
      * Throws an exception if the index is not found.
      */
     public int convertToInternalIndex(final Ssld ssld, final int externalIndex) {
 
-        final DeviceOutputSetting deviceOutputSetting = this.getDeviceOutputSettingForExternalIndex(ssld, externalIndex);
+        final DeviceOutputSetting deviceOutputSetting = this
+                .getDeviceOutputSettingForExternalIndex(ssld, externalIndex);
 
         if (deviceOutputSetting == null) {
             throw new IllegalArgumentException("Unknown internal id");
@@ -87,11 +88,24 @@ public class SsldDataService {
     }
 
     /**
-     * Returns the {@link DeviceOutputSetting} for the given index
+     * Returns the {@link DeviceOutputSetting} for the given external index
      */
     public DeviceOutputSetting getDeviceOutputSettingForExternalIndex(final Ssld ssld, final int index) {
         for (final DeviceOutputSetting d : ssld.getOutputSettings()) {
             if (d.getExternalId() == index) {
+                return d;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the {@link DeviceOutputSetting} for the given internal index
+     */
+    public DeviceOutputSetting getDeviceOutputSettingForInternalIndex(final Ssld ssld, final int index) {
+        for (final DeviceOutputSetting d : ssld.getOutputSettings()) {
+            if (d.getInternalId() == index) {
                 return d;
             }
         }
