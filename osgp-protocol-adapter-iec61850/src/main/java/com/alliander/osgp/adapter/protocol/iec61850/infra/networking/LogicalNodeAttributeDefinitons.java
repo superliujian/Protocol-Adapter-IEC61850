@@ -36,6 +36,11 @@ public final class LogicalNodeAttributeDefinitons {
     public static final String PROPERTY_MASTER_CONTROL = ".CfSt";
 
     /**
+     * Property of XSWC Node, schedule
+     * */
+    public static final String PROPERTY_SCHEDULE = ".Sche";
+
+    /**
      * Attribute of Property CfSt, enbOper, enables the operation of a relay.
      */
     public static final String PROPERTY_MASTER_CONTROL_ATTRIBUTE_ENABLE_OPERATION = "enbOper";
