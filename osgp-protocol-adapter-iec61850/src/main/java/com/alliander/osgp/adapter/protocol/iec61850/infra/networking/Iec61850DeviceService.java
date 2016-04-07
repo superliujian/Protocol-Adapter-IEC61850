@@ -44,7 +44,7 @@ import com.alliander.osgp.adapter.protocol.iec61850.device.responses.GetStatusDe
 import com.alliander.osgp.adapter.protocol.iec61850.domain.valueobjects.DeviceRelayType;
 import com.alliander.osgp.adapter.protocol.iec61850.domain.valueobjects.ScheduleEntry;
 import com.alliander.osgp.adapter.protocol.iec61850.domain.valueobjects.ScheduleWeekday;
-import com.alliander.osgp.adapter.protocol.iec61850.domain.valueobjects.TimeoutType;
+import com.alliander.osgp.adapter.protocol.iec61850.domain.valueobjects.TriggerType;
 import com.alliander.osgp.adapter.protocol.iec61850.exceptions.ConnectionFailureException;
 import com.alliander.osgp.adapter.protocol.iec61850.exceptions.InvalidConfigurationException;
 import com.alliander.osgp.adapter.protocol.iec61850.exceptions.ProtocolAdapterException;
@@ -65,7 +65,6 @@ import com.alliander.osgp.dto.valueobjects.MeterType;
 import com.alliander.osgp.dto.valueobjects.RelayConfiguration;
 import com.alliander.osgp.dto.valueobjects.RelayMap;
 import com.alliander.osgp.dto.valueobjects.Schedule;
-import com.alliander.osgp.dto.valueobjects.TriggerType;
 import com.alliander.osgp.shared.exceptionhandling.ComponentType;
 import com.alliander.osgp.shared.exceptionhandling.FunctionalException;
 import com.alliander.osgp.shared.exceptionhandling.FunctionalExceptionType;
@@ -300,7 +299,7 @@ public class Iec61850DeviceService implements DeviceService {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.alliander.osgp.adapter.protocol.iec61850.infra.networking.DeviceService
      * #
@@ -1042,11 +1041,11 @@ public class Iec61850DeviceService implements DeviceService {
                         // to be filled
                         if (scheduleEntry.isOn()) {
                             timeOnValue = scheduleEntry.getTime();
-                            timeOnTypeValue = (byte) scheduleEntry.getTimeoutType().getIndex();
+                            timeOnTypeValue = (byte) scheduleEntry.getTriggerType().getIndex();
 
                         } else {
                             timeOffValue = scheduleEntry.getTime();
-                            timeOffTypeValue = (byte) scheduleEntry.getTimeoutType().getIndex();
+                            timeOffTypeValue = (byte) scheduleEntry.getTriggerType().getIndex();
                         }
 
                         final BdaInt32 timeOn = (BdaInt32) Iec61850DeviceService.this.getChildOfNode(scheduleNode,
@@ -1187,18 +1186,17 @@ public class Iec61850DeviceService implements DeviceService {
         // ActionTime ABSOLUTETIME --> Fix
         // TriggerType LIGHT_TRIGGER & ActionTime SUNRISE or SUNSET --> Sensor
         // TriggerType ASTRONOMICAL --> Autonome
-        final TimeoutType timeoutType;
+        final TriggerType triggerType;
 
         if (ActionTimeType.ABSOLUTETIME.equals(schedule.getActionTime())) {
-            timeoutType = TimeoutType.FIX;
-
-        } else if (TriggerType.ASTRONOMICAL.equals(schedule.getTriggerType())) {
-            timeoutType = TimeoutType.AUTONOME;
+            triggerType = TriggerType.FIX;
+        } else if (com.alliander.osgp.dto.valueobjects.TriggerType.ASTRONOMICAL.equals(schedule.getTriggerType())) {
+            triggerType = TriggerType.AUTONOME;
         } else {
-            timeoutType = TimeoutType.SENSOR;
+            triggerType = TriggerType.SENSOR;
         }
 
-        return new ScheduleEntry(schedule.getIsEnabled() == null ? true : schedule.getIsEnabled(), timeoutType,
+        return new ScheduleEntry(schedule.getIsEnabled() == null ? true : schedule.getIsEnabled(), triggerType,
                 weekday, time, lightValue.isOn());
 
     }

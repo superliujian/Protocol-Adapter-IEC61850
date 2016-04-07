@@ -68,12 +68,6 @@ public interface DeviceService {
 
     void setSchedule(SetScheduleDeviceRequest deviceRequest, DeviceResponseHandler deviceResponseHandler);
 
-    // void setSchedule(SetScheduleDeviceRequest deviceRequest,
-    // DeviceResponseHandler deviceResponseHandler,
-    // String ipAddress, String domain, String domainVersion, String
-    // messageType, int retryCount,
-    // boolean isScheduled, PageInfo pageInfo);
-
     // void setTransition(DeviceRequest deviceRequest, DeviceResponseHandler
     // deviceResponseHandler);
 }

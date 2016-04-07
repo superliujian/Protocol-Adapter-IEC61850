@@ -13,15 +13,15 @@ package com.alliander.osgp.adapter.protocol.iec61850.domain.valueobjects;
 public class ScheduleEntry {
 
     private final boolean enabled;
-    private final TimeoutType timeoutType;
+    private final TriggerType triggerType;
     private final ScheduleWeekday weekday;
     private final short time;
     private final boolean on;
 
-    public ScheduleEntry(final boolean enabled, final TimeoutType timeoutType, final ScheduleWeekday weekday,
+    public ScheduleEntry(final boolean enabled, final TriggerType triggerType, final ScheduleWeekday weekday,
             final short time, final boolean on) {
         this.enabled = enabled;
-        this.timeoutType = timeoutType;
+        this.triggerType = triggerType;
         this.weekday = weekday;
         this.time = time;
         this.on = on;
@@ -31,8 +31,8 @@ public class ScheduleEntry {
         return this.enabled;
     }
 
-    public TimeoutType getTimeoutType() {
-        return this.timeoutType;
+    public TriggerType getTriggerType() {
+        return this.triggerType;
     }
 
     public ScheduleWeekday getWeekday() {

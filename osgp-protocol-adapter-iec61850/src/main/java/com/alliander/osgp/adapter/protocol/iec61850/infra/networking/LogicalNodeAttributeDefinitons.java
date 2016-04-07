@@ -7,7 +7,7 @@
  */
 package com.alliander.osgp.adapter.protocol.iec61850.infra.networking;
 
-import com.alliander.osgp.adapter.protocol.iec61850.domain.valueobjects.TimeoutType;
+import com.alliander.osgp.adapter.protocol.iec61850.domain.valueobjects.TriggerType;
 import com.alliander.osgp.adapter.protocol.iec61850.domain.valueobjects.ScheduleWeekday;
 
 /**
@@ -75,7 +75,7 @@ public final class LogicalNodeAttributeDefinitons {
     public static final String PROPERTY_SCHEDULE_TIME_ON = "tOn";
 
     /**
-     * Time on type. see {@link TimeoutType}
+     * Time on type. see {@link TriggerType}
      *
      * Property of sche node, which is a node of the schedule node of the XSWC
      * Node
@@ -91,7 +91,7 @@ public final class LogicalNodeAttributeDefinitons {
     public static final String PROPERTY_SCHEDULE_TIME_OFF = "tOff";
 
     /**
-     * Time off type. see {@link TimeoutType}
+     * Time off type. see {@link TriggerType}
      *
      * Property of sche node, which is a node of the schedule node of the XSWC
      * Node
