@@ -129,4 +129,5 @@ public class PublicLightingSetScheduleRequestMessageProcessor extends DeviceRequ
                     domainVersion, messageType, retryCount);
         }
     }
+
 }

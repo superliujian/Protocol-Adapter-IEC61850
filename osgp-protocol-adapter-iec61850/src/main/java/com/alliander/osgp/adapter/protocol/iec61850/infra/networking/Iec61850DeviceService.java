@@ -1216,9 +1216,15 @@ public class Iec61850DeviceService implements DeviceService {
 
                 final List<Integer> indexes = new ArrayList<>();
 
-                if (lightValue.getIndex() == 0) {
+                if (lightValue.getIndex() == 0 && RelayType.TARIFF.equals(relayType)) {
 
-                    // index == 0, getting all tariff relays and adding their
+                    // Index 0 is not allowed for tariff switching
+                    throw new FunctionalException(FunctionalExceptionType.VALIDATION_ERROR,
+                            ComponentType.PROTOCOL_IEC61850);
+
+                } else if (lightValue.getIndex() == 0 && RelayType.LIGHT.equals(relayType)) {
+
+                    // index == 0, getting all light relays and adding their
                     // internal indexes to the indexes list
                     final List<DeviceOutputSetting> settings = Iec61850DeviceService.this.ssldDataService
                             .findByRelayType(ssld, relayType);
